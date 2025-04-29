@@ -114,26 +114,34 @@ class WudaoCommand:
                 from urllib.error import URLError
                 import bs4
                 import lxml
+                print('Word not found locally, searching online...') # Inform user
                 if is_zh:
                     word_info = get_zh_text(word)
                 else:
                     word_info = get_text(word)
-                if not word_info['paraphrase']:
+                
+                # Check if online search actually returned something valid
+                if not word_info or not word_info.get('paraphrase'):
                     print('No such word: %s found online' % (self.painter.RED_PATTERN % word))
-                    return
-                # store struct
+                    return # Exit if online search fails
+                # store struct only if found online and valid
                 self.history_manager.add_word_info(word_info)
             except ImportError:
-                print('Word not found, auto Online search...')
-                print('You need install bs4, lxml first.')
-                print('Use ' + self.painter.RED_PATTERN % 'sudo pip3 install bs4 lxml' + ' or get bs4 online.')
+                # print('Word not found, auto Online search...') # Redundant with the print above
+                print('Error: Dependencies missing for online search.')
+                print('Please install bs4 and lxml first.')
+                print('Use ' + self.painter.RED_PATTERN % 'sudo pip3 install bs4 lxml' + ' or get them online.')
                 return
-            except URLError:
-                print('Word not found, auto Online search...')
-                print('No Internet : connection time out.')
+            except URLError as e:
+                # print('Word not found, auto Online search...') # Redundant
+                print(f'Error: Network issue during online search ({e}). Please check your connection.')
                 return
-            except socket.error as socketerror:
-                print("Error: ", socketerror)
+            except socket.timeout:
+                # print('Word not found, auto Online search...') # Redundant
+                print('Error: Online search timed out. Please check your connection or try again later.')
+                return
+            except Exception as e: # Catch other potential errors during online search
+                print(f"Error during online search: {e}")
                 return
         # 4. save note
         if self.conf['save'] and not is_zh:
