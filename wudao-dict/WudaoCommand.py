@@ -70,7 +70,7 @@ class WudaoCommand:
             sys.exit(0)
         # version
         if '-v' in self.param_list or '--version' in self.param_list:
-            print('Wudao-dict, Version \033[31m2.1\033[0m, Nov 27, 2019')
+            print('Wudao-dict, Version \033[31m2.1\033[0m, Apr 30, 2025')
             sys.exit(0)
         # conf change
         if '-s' in self.param_list or '--short' in self.param_list:
